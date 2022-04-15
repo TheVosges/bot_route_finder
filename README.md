@@ -7,6 +7,7 @@ A java project that manages bot in modernized storage. Porpuse of this bot is to
 <center>
             
 ![](https://i.imgur.com/SRxSxik.png)
+            <br>
 Image 1. Ocado storage 
       
 </center>
