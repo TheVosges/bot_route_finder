@@ -1,0 +1,202 @@
+package edu.ib.botRoutePlanner;
+
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Expression;
+
+import java.awt.*;
+import java.util.Arrays;
+
+public class Storage {
+    private Grid grid;
+    private Bot bot;
+    private Job currentJob;
+
+    public Storage(Grid grid, Bot bot, Job currentJob) {
+        this.grid = grid;
+        this.bot = bot;
+        this.currentJob = currentJob;
+    }
+
+    public Storage(Grid grid, Bot bot) {
+        this.grid = grid;
+        this.bot = bot;
+    }
+
+    public Grid getGrid() {
+        return grid;
+    }
+
+    public void setGrid(Grid grid) {
+        this.grid = grid;
+    }
+
+    public Bot getBot() {
+        return bot;
+    }
+
+    public void setBot(Bot bot) {
+        this.bot = bot;
+    }
+
+    public Job getCurrentJob() {
+        return currentJob;
+    }
+
+    public void setCurrentJob(Job currentJob) {
+        this.currentJob = currentJob;
+    }
+
+    public Product findNearestProduct(){
+        Product nearestProduct = null;
+        Double minDistance = null;
+
+        for (Product p : this.grid.getProducts()){
+            if (p.getName().equals(this.currentJob.getName())){
+                //Calculating shortest distance
+                Double distance = Math.sqrt(Math.pow(p.getX() - this.bot.getX(),2) + Math.pow(p.getY() - this.bot.getY(),2));
+                if (minDistance == null){
+                    nearestProduct = p;
+                    minDistance = distance;
+                }
+                if (minDistance > distance){
+                    nearestProduct = p;
+                    minDistance = distance;
+                }
+            }
+        }
+        try {
+            return nearestProduct;
+        } catch (Exception e) {
+            System.out.println("There's no product in storage with id: " + this.currentJob.getName());
+            return null;
+        }
+    }
+
+    public void findRouteToProduct(Product product){
+        double xDiff = Math.abs(product.getX() - this.bot.getX());
+        double yDiff = Math.abs(product.getY() - this.bot.getY());
+        boolean notInPlace = true;
+        do {
+
+            xDiff = Math.abs(product.getX() - this.bot.getX());
+            yDiff = Math.abs(product.getY() - this.bot.getY());
+            if (xDiff == 0 && yDiff == 0) {
+                notInPlace = false;
+                break;
+            }
+            int[] step = {0, 0};
+            if (xDiff >= yDiff &&  (validateStep(new int[]{1, 0})) && validateStep(new int[]{1, 0})){
+                if (this.bot.getX() < product.getX()){
+                    step = new int[]{1, 0}; // Step right
+                }
+                else{
+                    step = new int[]{-1, 0}; // Step left
+                }
+            }
+            else if ( (validateStep(new int[]{0, 1})) && (validateStep(new int[]{0, -1})) ) {
+                if (this.bot.getY() < product.getY()){
+                    step = new int[]{0, 1}; // Step up
+                }
+                else{
+                    step = new int[]{0, -1}; // Step down
+                }
+            }
+            this.currentJob.addTime(calculateTimeOfStep(step));
+            this.bot.makeStep(step);
+        } while (notInPlace);
+
+    }
+
+    public double calculateTimeOfStep(int[] step){
+        double time;
+        ModuleType from = ModuleType.valueOf(this.grid.getMap()[this.bot.getY()][this.bot.getX()]);
+        ModuleType to = ModuleType.valueOf(this.grid.getMap()[this.bot.getY() + step[1]][this.bot.getX() + step[0]]);
+        Double timeFrom = from.getTime();
+        Double timeTo = to.getTime();
+        time = Double.max(timeFrom,timeTo);
+        return time;
+    }
+
+    public boolean validateStep(int[] step){
+        boolean goodToMake = true;
+        System.out.println(this.bot.getX() + " : " + this.bot.getY() + " ||| " + Arrays.toString(step));
+        try {
+            if (this.grid.getMap()[this.bot.getY() + step[1]][this.bot.getX() + step[0]].equals("O")){
+                goodToMake = false;
+            }
+        } catch (Exception e){
+
+        }
+
+        return goodToMake;
+    }
+
+    public void getProductFromModule(Product product){
+        ModuleType currentModule = ModuleType.valueOf(this.grid.getMap()[this.bot.getY()][this.bot.getX()]);
+        String mathEqu = currentModule.getEquation();
+        Argument n = new Argument("n = " + product.getN());
+        Expression e = new Expression(mathEqu, n);
+        double time = e.calculate();
+        this.getCurrentJob().addTime(time);
+    }
+
+    public Point findNearestStation() {
+        Point nearestStation = null;
+        Double minDistance = null;
+
+        for (int y = 0; y < this.grid.getY(); y += 1) {
+            for (int x = 0; x < this.grid.getX(); x += 1) {
+                if (this.grid.getMap()[y][x].equals("P")) {
+                    Double distance = Math.sqrt(Math.pow(x - this.bot.getX(), 2) + Math.pow(y - this.bot.getY(), 2));
+                    if (minDistance == null) {
+                        nearestStation = new Point(x, y);
+                        minDistance = distance;
+                    }
+                }
+            }
+        }
+        try {
+            System.out.println(nearestStation.toString());
+            return nearestStation;
+        } catch (Exception e) {
+            System.out.println("There's no station!");
+            return null;
+        }
+
+    }
+
+    public void findRouteToStation(Point point){
+        double xDiff = Math.abs(point.getX() - this.bot.getX());
+        double yDiff = Math.abs(point.getY() - this.bot.getY());
+        boolean notInPlace = true;
+        do {
+
+            xDiff = Math.abs(point.getX() - this.bot.getX());
+            yDiff = Math.abs(point.getY() - this.bot.getY());
+            if (xDiff == 0 && yDiff == 0) {
+                notInPlace = false;
+                break;
+            }
+            int[] step = {0, 0};
+            if (xDiff >= yDiff &&  (validateStep(new int[]{1, 0})) && validateStep(new int[]{1, 0})){
+                if (this.bot.getX() < point.getX()){
+                    step = new int[]{1, 0}; // Step right
+                }
+                else{
+                    step = new int[]{-1, 0}; // Step left
+                }
+            }
+            else if ( (validateStep(new int[]{0, 1})) && (validateStep(new int[]{0, -1})) ) {
+                if (this.bot.getY() < point.getY()){
+                    step = new int[]{0, 1}; // Step up
+                }
+                else{
+                    step = new int[]{0, -1}; // Step down
+                }
+            }
+            this.currentJob.addTime(calculateTimeOfStep(step));
+            this.bot.makeStep(step);
+        } while (notInPlace);
+
+    }
+}
