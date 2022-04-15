@@ -1,5 +1,8 @@
 package edu.ib.botRoutePlanner;
 
+/**
+ * A class that represent a product and its posistion in grid
+ */
 public class Product {
     private String name;
     private int x;

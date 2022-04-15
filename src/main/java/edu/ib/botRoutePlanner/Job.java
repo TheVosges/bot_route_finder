@@ -1,5 +1,8 @@
 package edu.ib.botRoutePlanner;
 
+/**
+ * Class that represent one job - its product name and how much time it took to complete
+ */
 public class Job {
     private final String name;
     private double time;
@@ -22,6 +25,10 @@ public class Job {
         this.time = time;
     }
 
+    /**
+     * Method that adds time to current variable of this.time
+     * @param timeOfStep
+     */
     public void addTime(double timeOfStep){
         this.time = this.time + timeOfStep;
     }

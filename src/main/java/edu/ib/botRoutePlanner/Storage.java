@@ -13,10 +13,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class that represents whole storage - its grid, bot and what job it is currently on
+ */
 public class Storage {
     private Grid grid;
     private Bot bot;
     private Job currentJob;
+
 
     public Storage(Grid grid, Bot bot, Job currentJob) {
         this.grid = grid;
@@ -53,6 +57,10 @@ public class Storage {
         this.currentJob = currentJob;
     }
 
+    /**
+     * Method that finds nearest desired product to a bot - by currentJob.name
+     * @return nearestProduct:Product - nearest product data
+     */
     public Product findNearestProduct(){
         Product nearestProduct = null;
         Double minDistance = null;
@@ -79,6 +87,11 @@ public class Storage {
         }
     }
 
+    /**
+     * Method that calculates how much time this step will take -> max(module_before, module_after)
+     * @param step:int[] - what kind of step will it make ex. [1, 0]
+     * @return time:double - how much time will it take
+     */
     public double calculateTimeOfStep(int[] step){
         double time;
         ModuleType from = ModuleType.valueOf(this.grid.getMap()[this.bot.getY()][this.bot.getX()]);
@@ -89,6 +102,11 @@ public class Storage {
         return time;
     }
 
+    /**
+     * Method that calculates how much time will the recovery of item from current module (its bot cords) take.
+     * It uses mXparser by mariuszgromada - https://github.com/mariuszgromada/MathParser.org-mXparser
+     * @param product:Product - data of product
+     */
     public void getProductFromModule(Product product){
         ModuleType currentModule = ModuleType.valueOf(this.grid.getMap()[this.bot.getY()][this.bot.getX()]);
         String mathEqu = currentModule.getEquation();
@@ -98,6 +116,10 @@ public class Storage {
         this.getCurrentJob().addTime(time);
     }
 
+    /**
+     * Method that finds nearest desired collecting station to a bot - by this.grid
+     * @return nearestStation:Point - nearest collecting station data
+     */
     public Point findNearestStation() {
         Point nearestStation = null;
         Double minDistance = null;
@@ -123,6 +145,12 @@ public class Storage {
 
     }
 
+    /**
+     * Method that uses A* path finding algorithm to find shortest path to desired destination.
+     * It uses pathfinding package by xaguzman - https://github.com/xaguzman/pathfinding
+     * @param point:Point - destination cords
+     * @return output:List<int[]> - list of path steps
+     */
     public List<int[]> findRouteToStation(Point point){
 
         //Initializing walkable map
@@ -134,10 +162,6 @@ public class Storage {
                 else walkable[y][x] = 0;
             }
         }
-
-//        for(int i = 0; i< walkable.length; i+=1){
-//            System.out.println(Arrays.toString(walkable[i]));
-//        }
 
 
         // pathfinding package - https://github.com/xaguzman/pathfinding
@@ -170,16 +194,13 @@ public class Storage {
         for (int i = 0; i< pathToEnd.size(); i+=1){
             output.add(new int[]{pathToEnd.get(i).x, pathToEnd.get(i).y});
         }
-
-//        for (int i = 0; i< output.size(); i+=1){
-//            System.out.println(Arrays.toString(output.get(i)));
-//        }
-//
-//        System.out.println("----------------");
-
         return output;
     }
 
+    /**
+     * Method that changes position of bot by a path instructions and calculates its time
+     * @param path:List<int[]> - list of instructions
+     */
     public void makeStepWithBot(List<int[]> path){
         for (int[] step : path){
             int[] thisStep = {step[0] - this.bot.getX(), step[1] - this.bot.getY()};

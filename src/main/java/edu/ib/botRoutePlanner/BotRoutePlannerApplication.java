@@ -19,11 +19,6 @@ public class BotRoutePlannerApplication {
 	public static void main(String[] args) throws IOException {
 		SpringApplication.run(BotRoutePlannerApplication.class, args);
 
-		//Test for agrs
-//		List<String> test = new ArrayList<>();
-//		test.add("grid-1.txt");
-//		test.add("job-1.txt");
-
 		//Importing content of .txt files
 		List<String> content = new ArrayList<>();
 		if (args.length == 2){
@@ -32,7 +27,7 @@ public class BotRoutePlannerApplication {
 			}
 		}
 
-		// SETUP OF STORAGE
+		//---------- SETUP OF STORAGE --------------
 
 		//Initializing storage grid
 		Grid grid = new Grid(content.get(0));
@@ -49,22 +44,24 @@ public class BotRoutePlannerApplication {
 		//Initializing Storage variables
 		Storage storage = new Storage(grid, bot, job);
 
+
+		//------------- ORDERS --------------------
+
 		//Finding nearest product
 		Product nearestProduct = storage.findNearestProduct();
-		Product testProduct = new Product("P1", 3, 2, 2);
 
-
-		//PATH FINDING
+		//PATH FINDING of product
 		List<int[]> path = new ArrayList<>();
 		path.add(new int[]{bot.getX(), bot.getY()});
 
-		//Path to desired product
-		List<int[]> pathToProduct = storage.findRouteToStation(new Point(testProduct.getX(), testProduct.getY()));
+		//Adding path to desired product
+		List<int[]> pathToProduct = storage.findRouteToStation(new Point(nearestProduct.getX(), nearestProduct.getY()));
 		storage.makeStepWithBot(pathToProduct);
 		for (int[] step : pathToProduct){
 			path.add(step.clone());
 		}
 
+		//Finding nearest collecting station
 		storage.getProductFromModule(nearestProduct);
 
 		//Path to collecting station
@@ -75,12 +72,18 @@ public class BotRoutePlannerApplication {
 			path.add(step.clone());
 		}
 
+		//Saving results
 		writeResult("result" , composeOutput((storage.getBot().getPath().size()-1), storage.getCurrentJob().getTime(),
 				path
 		));
 	}
 
-
+	/**
+	 * Function for reading .txt files
+	 * @param filename:String - name of file
+	 * @return content:String - content of file
+	 * @throws IOException
+	 */
 	public static String readFile(String filename) throws IOException {
 		String content = "";
 		String currentPath = new java.io.File(".").getCanonicalPath();
@@ -94,6 +97,13 @@ public class BotRoutePlannerApplication {
 		return content;
 	}
 
+	/**
+	 * Function for saving data into a .txt file
+	 * @param filename - name of file
+	 * @param data - desired data
+	 * @return
+	 * @throws IOException
+	 */
 	public static String writeResult(String filename, String data) throws IOException {
 		String content = "";
 		String currentPath = new java.io.File(".").getCanonicalPath();
@@ -105,6 +115,13 @@ public class BotRoutePlannerApplication {
 		return content;
 	}
 
+	/**
+	 * Function that connects provided data into one String
+	 * @param steps:int - no. of steps
+	 * @param time:double - time of job
+	 * @param path:List<int[]> - list of steps
+	 * @return output:String - coneccted data
+	 */
 	public static String composeOutput(int steps, double time, List<int[]> path){
 		String output = steps + "\n" + time + "\n";
 		for(int[] step : path){

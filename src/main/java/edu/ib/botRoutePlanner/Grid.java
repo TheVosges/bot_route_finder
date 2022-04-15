@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class that represents grid of storage, its modules, size, module size and products
+ */
 public class Grid {
     private int x;
     private int y;
@@ -74,11 +77,18 @@ public class Grid {
         }
     }
 
+    /**
+     * Method that changes desired cords into collecting station
+     * @param setup:String - "x y"
+     */
     public void initializeDestinationModule(String setup){
         String[] moduleCords = setup.split("\n")[1].split(" ");
         this.map[Integer.parseInt(moduleCords[0])][Integer.parseInt(moduleCords[1])] = "P";
     }
 
+    /**
+     * Method used to debugging - it shows whole map of grid
+     */
     public void soutMap() {
         for (String[] s : this.map){
             System.out.println(Arrays.toString(s));

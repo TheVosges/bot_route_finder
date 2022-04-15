@@ -1,5 +1,8 @@
 package edu.ib.botRoutePlanner;
 
+/**
+ * Enum that stores data about diffrent modules
+ */
 public enum ModuleType {
     H (0.5, "3*n+4"), // HIGH SPEED TRANSIT
     B (1, "2*n+2"), // BALANCED

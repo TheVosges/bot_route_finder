@@ -4,17 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class that represent a bot and its parameters
+ */
 public class Bot {
     private int x;
     private int y;
-    private boolean withProductOnBoard;
 
     private List<int[]> path;
 
     public Bot(int x, int y) {
         this.x = x;
         this.y = y;
-        this.withProductOnBoard = false;
         this.path = new ArrayList<>();
         int[] first = {x, y};
         path.add(first);
@@ -23,7 +24,6 @@ public class Bot {
     public Bot(String setup) {
         this.x = Integer.parseInt(setup.split("\n")[0].split(" ")[0]);
         this.y = Integer.parseInt(setup.split("\n")[0].split(" ")[1]);
-        this.withProductOnBoard = false;
         this.path = new ArrayList<>();
         int[] first = {x, y};
         path.add(first);
@@ -49,14 +49,6 @@ public class Bot {
         return path;
     }
 
-    public boolean isWithProductOnBoard() {
-        return withProductOnBoard;
-    }
-
-    public void setWithProductOnBoard(boolean withProductOnBoard) {
-        this.withProductOnBoard = withProductOnBoard;
-    }
-
     public void soutPath(){
         for(int[] cords  : this.path){
             System.out.println(Arrays.toString(cords));
@@ -74,7 +66,6 @@ public class Bot {
         return "Bot{" +
                 "x=" + x +
                 ", y=" + y +
-                ", withProductOnBoard=" + withProductOnBoard +
                 ", path=" + path +
                 '}';
     }
